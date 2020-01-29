@@ -123,10 +123,8 @@ function assignPrizeToUser(){
 	global $dateStamp;
 	echo "CALLED";
 
-	// $email = $_POST["email"];
-	// $prizeID = $_POST['prizeID'];
-	$email = "testD";
-	$prizeID = 6;
+	$email = $_POST["email"];
+	$prizeID = $_POST['prizeID'];
 
 	// QUESTION - DUPLICATES?
 	$query = "UPDATE `Users` SET `prize_id` = (?) WHERE `email` = (?) LIMIT 1 ";
@@ -153,8 +151,7 @@ function assignWonToPrize(){
 	global $conn;
 	global $dateStamp;
 
-	// $prizeID = $_POST['prizeID'];
-	$prizeID = 5;
+	$prizeID = $_POST['prizeID'];
 
 	$query = "UPDATE `Prizes` SET `time_won` = (?) WHERE `id` = (?);";
 	$sql = $conn -> prepare($query);
