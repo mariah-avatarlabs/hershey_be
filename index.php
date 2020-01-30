@@ -173,79 +173,33 @@ function wonPrize(){
 
 	$prizesAvailable = $prizeManager->canWin();
 
-	if(!hasError($prizesAvailable) == TRUE){
+	if(hasError($prizesAvailable) == FALSE){
 		$data["won"] = $prizesAvailable["hasWon"];
 
+		// REFACTOR -- deep if?
 		if($data["won"] == TRUE){
-			echo ('get prize');
-			
-		} else {
-			echo $data;
-		}
+			$prizeData = $prizeManager->retrieveAvailablePrize();
+			if(hasError($prizeData) == FALSE){
+				$data['prizeID'] = $prizeData['prize']['id'];
+				
+				// update prize time_won stamp
+				$prizeStatus = $prizeManager->updateTimeWon($data['prizeID']);
+				if(hasError($prizeStatus) == TRUE){
+					$data['error'] = $prizeStatus['error'];
+				}
+
+
+			} else {
+				$data['error'] = $prizeData['error'];
+			}
+
+		}; 
 
 	} else {
-		echo $data;
+		$data['error'] = $prizesAvailable['error'];
 	};
 
-	// global $conn;
-	// global $dateStamp;
-
-	// $dailyLimit = 5;
-	// $timeStart = "00:00:00";
-	// $timeEnd = "23:59:59";
-	// $baseDate = substr($dateStamp, 0, -8);
-
-	// // REFACTOR - pull into util
-	// $baseTime = Datetime::createFromFormat('Y-m-d H:i:s', $dateStamp);
-	// $baseTime = $baseTime->modify('-10 minutes');
-	// $endTime = $baseTime->format('Y-m-d H:i:s');
-
-
-
-	// timeInterval($baseTime);
-
-	// $endDate = $baseDate . $timeEnd;
-	// $startDate = $baseDate . $timeStart;
-	// $data = array(
-	// 	'won' => false,
-	// 	'prizeID' => null
-	// );	
-
-	// $query = "SELECT COUNT(*) FROM Prizes WHERE time_won BETWEEN (?) AND (?) AND time_claimed BETWEEN (?) AND (?)";
-	// $sql -> bind_param("ss", $startDate, $endDate);
-
-	/*
-	// $query = "SELECT COUNT(*) FROM Prizes WHERE time_won BETWEEN (?) AND (?)";
-
-	$sql = $conn->prepare($query);
-	$sql -> bind_param("ss", $startDate, $endDate);
-
-	$result = $sql -> execute();
-	$result = $sql->get_result();
-
-		
-	if ($result) { 	
-		$count = $result -> fetch_row();
-		$count = $count[0];
-
-		if($count < $dailyLimit){
-			$prizeID = assignWonToPrize();
-
-			$data['won'] = true;
-			$data['prizeID'] = $prizeID;
-			
-			echo json_encode($data);
-
-		} else {
-			echo json_encode($data);
-
-
-		}
-
-	} else {
-		echo " ERROR: DID NOT UPDATE USER WITH PRIZE" ;
-	}
-	*/
+	echo json_encode($data);
 
 };
 wonPrize();
