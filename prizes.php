@@ -52,7 +52,7 @@ class PrizeManager {
             }
 
         } else {
-            $data['error'] = $sql->error;
+            $data['error'] = "QUERY FAILED FOR PRIZE COUNT";
         }
 
         return $data;
@@ -106,7 +106,7 @@ class PrizeManager {
         if ($sql -> execute()) { 
             $data['updated'] = TRUE;
         } else {
-            $data['error'] = $sql->error;
+            $data['error'] = "QUERY FAILED AT PRIZE UPDATE";
         }
 
         return $data;
@@ -156,7 +156,7 @@ class PrizeManager {
            }
     
         } else {
-            $data['error'] = $sql->error;
+            $data['error'] = "QUERY FAILED TO RETRIEVE PRIZE";
         }
     
         return $data;
