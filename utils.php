@@ -32,12 +32,9 @@ function determineProbability($prizesWon, $totalPrizes)
     $odds = $odds * 100;
 
     if (rand(1,100) <= $odds){
-        // echo 1;
         return TRUE;
     } else {
-        // echo 0;
         return FALSE;
-
     }
 
 }
