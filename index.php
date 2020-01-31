@@ -30,8 +30,9 @@ if ($conn->connect_error) {
  * @param type: string = determine if update property should be `time_won` or `time_updated`
  * @param ID: string = prize ID used in SQL query
  * * returns: 
-	 * * onSuccess => $data:array ["prizeUpdated":boolean]
-	 * * onFail => $data:array ["prizeUpdated":boolean], "error":string]
+ 	 * * "prizeUpdated":boolean => prize query successfully updated
+ 	 * * "error":string[conditional] => error messaging if failure
+
  * 
  * ? is this necessary [similar function as prizemanager update]
 */
@@ -64,8 +65,8 @@ function updatePrize($type, $ID){
  * createUser() 
  * manage queries for creating user and call to update associative prize; close connection
 * * return(json_encoded): 
-	 * * onSuccess => $data:array ["created":boolean]
-	 * * onFail => $data:array ["error":boolean]
+	 * * "created":boolean => user successfully created
+ 	 * * "error":string[conditional] => error messaging if failure
  * 
  * ? is this necessary [similar function as prizemanager update]
 */
@@ -107,8 +108,10 @@ function createUser(){
  * wonPrize() 
  * manage queries for creating user and call to update associative prize; close connection
  * * return(json_encoded): 
-	 * * onSuccess => $data:array ["won":boolean, "prizeID":string, "prizeUpdated":boolean]
-	 * * onFail => $data:array ["error":string]
+ 	 * * "won":boolean => user has won
+ 	 * * "prizeID":boolean => prizeID for prize user has won
+ 	 * * "prizeUpdated":boolean => prize query successfully updated	 
+ 	 * * "error":string[conditional] => error messaging if failure
  * 
 */
 function wonPrize(){
@@ -162,7 +165,7 @@ function wonPrize(){
  * init() 
  * initialize action per the key in the POST request; 
  * * echo(json_encoded): 
-	 * * onFail => $data:array ["error":string]
+ 	 * * "error":string[conditional] => error messaging if failure
  * 
 */
 function init(){
