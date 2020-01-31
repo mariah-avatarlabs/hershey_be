@@ -19,11 +19,22 @@ header('Content-Type: application/json; charset=utf-8');
 $conn = new mysqli($hostname, $username, $password, $dbname); 
 $dateStamp = generateTimestamp();
 
-
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+
+/** 
+ * updatePrize() 
+ * makes call to prizeManager to update selected prize record; filter for error;
+ * @param type: string = determine if update property should be `time_won` or `time_updated`
+ * @param ID: string = prize D used in SQL query
+ * * returns: 
+	 * * $data:array ["prizeUpdated" = boolean]
+	 * * $data:array ["error" = boolean]
+ * 
+ * ? is this necessary [similar function as prizemanager update]
+*/
 function updatePrize($type, $ID){
 	global $conn;
 	global $dateStamp;
@@ -44,6 +55,17 @@ function updatePrize($type, $ID){
 }
 
 
+
+
+/** 
+ * createUser() 
+ * manage queries for creating user and call to update associative prize; close connection
+* * echo(json_encoded): 
+	 * * onSuccess => $data:array ["created" = boolean]
+	 * * onFail => $data:array ["error" = boolean]
+ * 
+ * ? is this necessary [similar function as prizemanager update]
+*/
 function createUser(){
 	global $conn;
 	global $dateStamp;
@@ -51,6 +73,7 @@ function createUser(){
 	$userManager = new UserManager($conn, $dateStamp);
 	$prizeManager = new PrizeManager($conn, $dateStamp);
 	
+	//* Define expected data structure
 	$data = array(
 		'created' => FALSE,
 	);
@@ -73,27 +96,41 @@ function createUser(){
 };
 
 
+/** 
+ * wonPrize() 
+ * manage queries for creating user and call to update associative prize; close connection
+ * * echo(json_encoded): 
+	 * * onSuccess => $data:array ["won":boolean, "prizeID":string, "prizeUpdated":boolean]
+	 * * onFail => $data:array ["error":string]
+ * 
+*/
 function wonPrize(){
 	global $conn;
 	global $dateStamp;
-
+	
 	$prizeManager = new PrizeManager($conn, $dateStamp);
-
+	
+	//* Define expected data structure
 	$data = array(
 		'won' => false,
-		'prizeID' => null
+		'prizeID' => null,
+		'prizeUpdated' => false
 	);	
 
+	//* Check to see if user has won
 	$prizesAvailable = $prizeManager->canWin();
-
 	if(hasError($prizesAvailable) == FALSE){
 		$data["won"] = $prizesAvailable["hasWon"];
-
+		
+		//* If user has won - retrieve a prize
 		if($data["won"] == TRUE){
+			
+			//* Retrieve prizeID for selected prize
 			$prizeData = $prizeManager->retrieveAvailablePrize();
 			if(hasError($prizeData) == FALSE){
 				$data['prizeID'] = $prizeData['prize']['id'];
 				
+				//* Call to update prize status
 				$prizeHasUpdated = updatePrize('won', $data['prizeID']);
 				$data=array_merge($data, $prizeHasUpdated);
 
@@ -107,21 +144,31 @@ function wonPrize(){
 		$data['error'] = $prizesAvailable['error'];
 	};
 
+	//* Send data back and close connection
 	echo json_encode($data);
 	mysqli_close($conn);
 
 };
 
 
+/** 
+ * init() 
+ * initialize action per the key in the POST request; 
+ * * echo(json_encoded): 
+	 * * onFail => $data:array ["error":string]
+ * 
+*/
 function init(){
 	global $conn;
 
 	$action = NULL;
-
+	
+	//* Check to see if POST includes an action; if so sanatize;
 	if( isset($_POST['action']) ){
 		$action = filter_var($_POST['action'], FILTER_SANITIZE_STRING);
 	}
-
+	
+	//* Determine what action needs to be taken per the action key($action);
 	switch ($action) {	
 		case 'won':
 			wonPrize();		
@@ -132,7 +179,6 @@ function init(){
 			break;			
 		
 		default:
-		// OPTIONS?
 			$data = array(
 				'error' => "NO ACTION",
 			);
