@@ -58,35 +58,12 @@ function hasError($data){
 
 }
 
-/** 
- * addSalt() 
- * adds MD5 hash to data
- * @param data:string = data to be encrypted for DB
- * * returns:string salted data to be encrypted
- * 
-*/
-function addSalt($data){
-    $chars = '5ecc04a77b57809c69f09721b8cf76ac';
-    return $data .= $chars;
-}
-
-/** 
- * removeSalt() 
- * removes MD5 hash from data
- * @param data:string = data to be returned decrypted
- * * returns:string data decrypted and de-salted
- * 
-*/
-function removeSalt($data){
-    $chars = '5ecc04a77b57809c69f09721b8cf76ac';
-    return substr($data, 0, -strlen($chars));
-}
 
 /** 
  * decrypt() 
  * decrypt data
- * @param data:string = encrypted data with salt
- * * returns:string data decrypted without salt
+ * @param data:string = encrypted data
+ * * returns:string data decrypted
  * 
 */
 function decrypt($dataString){
@@ -99,15 +76,14 @@ function decrypt($dataString){
     $decryption=openssl_decrypt ($dataString, $ciphering,  
         $key, 0, $decryption_iv); 
 
-    return removeSalt($decryption);
-
+    return $decryption;
 }
 
 /** 
  * encrypt() 
  * encrypt data
  * @param data:string = data to be encrypted
- * * returns:string data encrypted with salt
+ * * returns:string data encrypted 
  * 
 */
 function encrypt($dataString){
@@ -116,7 +92,7 @@ function encrypt($dataString){
     $iv_length = openssl_cipher_iv_length($ciphering); 
     $encryption_iv = '1234567891011121'; 
 
-    $encryption = openssl_encrypt(addSalt($dataString), $ciphering, 
+    $encryption = openssl_encrypt($dataString, $ciphering, 
     $key, 0, $encryption_iv); 
     return $encryption;
 }

@@ -1,4 +1,5 @@
 <?php
+include_once ('utils.php');
 
 class UserManager {
 
@@ -12,16 +13,16 @@ class UserManager {
         $this->prizeID = "";
 
         if( isset($_POST['firstname']) ){
-            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+            $this->firstname = encrypt(filter_var($_POST["firstname"], FILTER_SANITIZE_STRING));
         }
         if( isset($_POST['lastname']) ){
-            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+            $this->lastname = encrypt(filter_var($_POST["lastname"], FILTER_SANITIZE_STRING));
         }
         if( isset($_POST['email']) ){
-            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+            $this->email = encrypt(filter_var($_POST["email"], FILTER_SANITIZE_STRING));
         }
         if( isset($_POST['prizeID']) ){
-            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+            $this->prizeID = filter_var($_POST["prizeID"], FILTER_SANITIZE_STRING);
         }                        
 
     }
@@ -47,16 +48,17 @@ class UserManager {
         //* Prepare and run query 
         $sql = $this->conn->prepare($query);
         $sql->bind_param("sssi", $this->firstname, $this->lastname, $this->email, intval($this->prizeID));
+
         $result = $sql->execute();
-        
+
         //* Filter data            
         if ($result) { 
             $data['userCreated'] = TRUE;
             $data['prizeID'] = $this->prizeID;
     
         } else {
-            $data['error'] = $sql->error;
-        }
+            $data['error'] = "USER CREATE FAILED";
+        }        
 
         return $data;
 
