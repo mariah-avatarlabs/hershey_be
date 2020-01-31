@@ -89,7 +89,6 @@ function wonPrize(){
 	if(hasError($prizesAvailable) == FALSE){
 		$data["won"] = $prizesAvailable["hasWon"];
 
-		// REFACTOR -- deep if?
 		if($data["won"] == TRUE){
 			$prizeData = $prizeManager->retrieveAvailablePrize();
 			if(hasError($prizeData) == FALSE){
@@ -97,12 +96,6 @@ function wonPrize(){
 				
 				$prizeHasUpdated = updatePrize('won', $data['prizeID']);
 				$data=array_merge($data, $prizeHasUpdated);
-
-				// update prize time_won stamp - pull out
-				// $prizeStatus = $prizeManager->update('won', $data['prizeID']);
-				// if(hasError($prizeStatus) == TRUE){
-				// 	$data['error'] = $prizeStatus['error'];
-				// }
 
 			} else {
 				$data['error'] = $prizeData['error'];
