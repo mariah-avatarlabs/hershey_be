@@ -50,7 +50,7 @@ class UserManager {
         foreach ($this->postData as $key => $value) {
             if(is_null($value)){
                 $validData = FALSE;
-                $data['error'] = "INVALID ENTRY" . $key;
+                $data['error'] = "INVALID ENTRY: " . $key;
             }
         }
 
@@ -60,20 +60,20 @@ class UserManager {
             
             //* Prepare and run query 
             $sql = $this->conn->prepare($query);
-            $sql->bind_param("sssi", $this->firstname, $this->lastname, $this->email, intval($this->prizeID));
+            $sql->bind_param("sssi", $this->postData["firstname"], $this->postData["lastname"], $this->postData["email"], intval($this->postData["prizeID"]));
 
             $result = $sql->execute();
 
             //* Filter data            
             if ($result) { 
                 $data['userCreated'] = TRUE;
-                $data['prizeID'] = $this->prizeID;
+                $data['prizeID'] = $this->postData["prizeID"];
         
             } else {
                 $data['error'] = "USER CREATE FAILED";
             }        
         }
-        
+
         return $data;
 
     }
