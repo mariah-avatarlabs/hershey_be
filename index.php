@@ -23,7 +23,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
+$userM = new UserManager($conn, $dateStamp);
+$userM->exportToCSV();
 /** 
  * updatePrize() 
  * makes call to prizeManager to update selected prize record; filter for error;
@@ -63,7 +64,7 @@ function updatePrize($type, $ID){
 /** 
  * createUser() 
  * manage queries for creating user and call to update associative prize; close connection
-* * echo(json_encoded): 
+* * return(json_encoded): 
 	 * * onSuccess => $data:array ["created":boolean]
 	 * * onFail => $data:array ["error":boolean]
  * 
@@ -106,7 +107,7 @@ function createUser(){
 /** 
  * wonPrize() 
  * manage queries for creating user and call to update associative prize; close connection
- * * echo(json_encoded): 
+ * * return(json_encoded): 
 	 * * onSuccess => $data:array ["won":boolean, "prizeID":string, "prizeUpdated":boolean]
 	 * * onFail => $data:array ["error":string]
  * 
