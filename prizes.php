@@ -12,9 +12,11 @@ class PrizeManager {
     /** 
      * canWin() 
      * determines if there are any available prizes for the current time interval based off of how many prizes were claimed today
-     * * returns: 
-        * * onSuccess => $data:array ["hasWon":boolean]
-        * * onFail => $data:array ["error":string]
+     * * returns:array [
+        * * "hasWon":boolean => user has won
+        * * "error":string[conditional] => error messaging if failure
+     * * ]
+    *
     */
     public function canWin(){
         $dailyLimit = 5;
@@ -64,9 +66,10 @@ class PrizeManager {
      * updates prize `time_won` or `time_claimed` property based off of ID and update type.
      * @param type: string = determine if update property should be `time_won` or `time_updated`
      * @param ID: string = ID used in SQL query to retrieve prize data
-     * * returns: 
-        * * onSuccess => $data:array ["updated":boolean]
-        * * onFail => $data:array ["error":string]
+     * * returns:array [
+        * * "updated":boolean => query has successfully updated prize data
+        * * "error":string[conditional] => error messaging if failure
+     * * ]
      * 
     */
     public function update($type, $ID){
@@ -117,9 +120,10 @@ class PrizeManager {
      * retrieveAvailablePrize() 
      * returns prize record in DB if `time_claimed` is NULL and `time_won` is between the expressed interval or NULL
      * @param timeFrame: string = desired time interval
-     * * returns: 
-        * * onSuccess => $data:array ["prize":array ]
-        * * $onFail => data:array ["error":string]
+     * * returns:array [ 
+        * * "prize":array => prize row from DB
+        * * "error":string[conditional] => error messaging if failure
+     * ] 
      *
      * TODO: allow arg to be passed in for variable time intervals
      * TODO: confirm get_result() call
