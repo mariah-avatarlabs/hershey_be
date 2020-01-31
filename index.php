@@ -1,5 +1,6 @@
 <?php
 require ('prizes.php');
+require ('user.php');
 require ('utils.php');
 
 require __DIR__ . '/vendor/autoload.php';
@@ -18,7 +19,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 $conn = new mysqli($hostname, $username, $password, $dbname); 
 $dateStamp = generateTimestamp();
+
 $prizeManager = new PrizeManager($conn, $dateStamp);
+$userManager = new UserManager($conn, $dateStamp);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -32,38 +35,9 @@ function generateTimestamp(){
 }
 
 
-function createUser(){
-    global $conn;
-	
-	$firstname = $_POST["firstname"];
-	$lastname = $_POST["lastname"];
-	$email = $_POST["email"];
-	$prizeID = intval($_POST["prizeID"]);
-	$data = array(
-		'user' => null,
-		'claimedPrize' => false,
-	);
-	
-	$query = "INSERT INTO Users (firstname, lastname, email, prize_id) VALUES (?, ?, ?, ?) ";
-    
-    $sql = $conn->prepare($query);
-    $sql->bind_param("sssi", $firstname, $lastname, $email, $prizeID);
-	$result = $sql -> execute();
 
-    if ($result) { 
-		$data['user'] = retrieveUser();
-		$data['claimedPrize'] = claimedPrize();
-		echo json_encode($data);
 
-	} else {
-		//QUESTION - double check
-		$data['error'] = $sql->error;
-		echo json_encode($data);
 
-        // echo " ERROR: " . $sql->error;
-     }
-    
-};
 
 
 function retrieveUser(){
@@ -163,6 +137,61 @@ function timeInterval($time){
 	echo $baseTime;
 }
 
+
+
+
+
+// $prizesAvailable = $prizesAvailable['hasWon'];
+
+// echo json_encode();
+
+
+function claimedPrize(){
+	global $conn;
+
+	$prizeID = $_POST['prizeID'];
+
+	$dateStamp = generateTimestamp();
+
+	$query = "UPDATE `Prizes` SET `time_claimed` = (?) WHERE `id` = (?) ";
+	$sql = $conn -> prepare($query);
+	$sql -> bind_param("si", $dateStamp, $prizeID);
+
+	if ($sql -> execute()) { 
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+
+function createUser(){
+	global $userManager;
+	
+	$data = array(
+		'created' => FALSE,
+	);
+
+	$createUser = $userManager->create();
+
+	if(hasError($createUser) == FALSE){
+		$data["created"] = TRUE;
+
+		// update prize claimed
+		$prizeUpdated = $prizeManager->update('claimed', );
+
+	} else {
+		$data["error"] = $createUser["error"];
+	}
+
+	echo json_encode($data);
+    
+};
+createUser();
+
+
+
 function wonPrize(){
 	global $prizeManager;
 
@@ -188,7 +217,6 @@ function wonPrize(){
 					$data['error'] = $prizeStatus['error'];
 				}
 
-
 			} else {
 				$data['error'] = $prizeData['error'];
 			}
@@ -202,88 +230,33 @@ function wonPrize(){
 	echo json_encode($data);
 
 };
-wonPrize();
 
+$action =  $_POST['action'];
 
+switch ($action) {
+	case 'createUser':
+		createUser();		
+		break;
 
-// $prizesAvailable = $prizesAvailable['hasWon'];
+	case 'retrieveUser':
+		retrieveUser();		
+		break;	
 
-// echo json_encode();
+	case 'retrievePrize':
+		retrievePrize();		
+		break;			
 
-// return prize id
-function assignWonToPrize(){
-	global $conn;
-	global $dateStamp;
+	case 'won':
+		wonPrize();		
+		break;	
 
-	// $prizeID = $_POST['prizeID'];
-	// $prizeID = (int)$prize -> id;
-	$prizeID = 9;
-	$prize = retrievePrizeById($prizeID);
-
-	// $prize = retrievePrize();
-
-	// $query = "UPDATE `Prizes` SET `time_won` = (?) WHERE `id` = (?);";
-	// $sql = $conn -> prepare($query);
-	// $sql -> bind_param("si", $dateStamp, $prizeID);
-
-	// if ($sql -> execute()) { 
-	// 	return $prizeID;
-
-	// } else {
-	// 	echo " ERROR: DID NOT UPDATE PRIZE" ;
-	// 	return NULL;
-
-	// }
-
-};
-
-function claimedPrize(){
-	global $conn;
-
-	$prizeID = $_POST['prizeID'];
-
-	$dateStamp = generateTimestamp();
-
-	$query = "UPDATE `Prizes` SET `time_claimed` = (?) WHERE `id` = (?) ";
-	$sql = $conn -> prepare($query);
-	$sql -> bind_param("si", $dateStamp, $prizeID);
-
-	if ($sql -> execute()) { 
-		return true;
-	} else {
-		return false;
-	}
-
-}
-
-
-
-// $action =  $_POST['action'];
-
-// switch ($action) {
-// 	case 'createUser':
-// 		createUser();		
-// 		break;
-
-// 	case 'retrieveUser':
-// 		retrieveUser();		
-// 		break;	
-
-// 	case 'retrievePrize':
-// 		retrievePrize();		
-// 		break;			
-
-// 	case 'won':
-// 		wonPrize();		
-// 		break;	
-
-// 	case 'claim':
-// 		claimedPrize();		
-// 		break;			
+	case 'claim':
+		claimedPrize();		
+		break;			
 	
-// 	default:
-// 		break;
-// }
+	default:
+		break;
+}
 
 
 ?>

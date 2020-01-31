@@ -46,6 +46,47 @@ class PrizeManager {
 
     }
 
+    public function update($type, $ID){
+        $data = array(
+            'updated' => FALSE,
+        );
+            
+
+        switch ($type) {
+            case 'won':
+                $query = "UPDATE `Prizes` 
+                    SET `time_won` = (?) 
+                    WHERE `id` = (?)";
+                break;
+
+            case 'claimed':
+                $query = "UPDATE `Prizes` 
+                            SET `time_claimed` = (?) 
+                            WHERE `id` = (?)";
+                break;
+
+           default:
+                $query = "UPDATE `Prizes` 
+                            SET `time_won` = (?) 
+                            WHERE `id` = (?)";
+                break;
+        }
+
+
+        
+        $sql = $this->conn->prepare($query);
+        $sql->bind_param("ss", $this->dateStamp, $ID);
+
+        if ($sql -> execute()) { 
+            $data['updated'] = TRUE;
+        } else {
+            $data['error'] = $sql->error;
+        }
+
+        return $data;
+
+    }
+
     public function updateTimeWon($ID){
         $data = array(
             'updated' => FALSE,
@@ -65,6 +106,29 @@ class PrizeManager {
         }
 
         return $data;
+
+    }
+
+    public function updateTimeClaimed($ID){
+        $data = array(
+            'updated' => FALSE,
+        );
+            
+        $query = "UPDATE `Prizes` 
+                    SET `time_claimed` = (?) 
+                    WHERE `id` = (?)";
+        
+        $sql = $this->conn->prepare($query);
+        $sql->bind_param("ss", $this->dateStamp, $ID);
+
+        if ($sql -> execute()) { 
+            $data['updated'] = TRUE;
+        } else {
+            $data['error'] = $sql->error;
+        }
+
+        return $data;
+
 
     }
 
@@ -94,16 +158,14 @@ class PrizeManager {
             // REFACTOR - CHECK ONE RECORD??
             $result = $sql->get_result();
 
-            echo "called";
-
             while ($row = $result->fetch_array(MYSQLI_ASSOC)){
                 $data['prize'] = $row;
-                echo json_encode($row);
+                // echo json_encode($row);
            }
     
         } else {
             $data['error'] = $sql->error;
-            echo "int err";
+            // echo "int err";
 
         }
     
@@ -111,6 +173,8 @@ class PrizeManager {
     
     
     }
+
+
 
     
 }
