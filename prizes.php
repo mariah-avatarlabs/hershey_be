@@ -1,4 +1,5 @@
 <?php
+require ('utils.php');
 
 class PrizeManager {
 
@@ -39,9 +40,7 @@ class PrizeManager {
             $count = $count[0];
 
             if($count < $dailyLimit){
-                $data['hasWon'] = TRUE;
-            } else {
-                $data['hasWon'] = FALSE;
+                $data['hasWon'] = determineProbability($count, $dailyLimit);
             }
 
         } else {

@@ -16,6 +16,24 @@ function encryptData($dataString){
 
 }
 
+function determineProbability($prizesWon, $totalPrizes)
+{
+    $odds = $totalPrizes - $prizesWon;
+    $odds = $odds / $totalPrizes;
+    $odds = $odds * 100;
+
+    //https://stackoverflow.com/questions/9252671/how-do-i-execute-one-event-in-php-based-on-a-probability-for-the-event-to-happen
+    if (rand(1,100) <= $odds){
+        // echo 1;
+        return TRUE;
+    } else {
+        // echo 0;
+        return FALSE;
+
+    }
+
+}
+
 function decryptData($dataString){
 
 }

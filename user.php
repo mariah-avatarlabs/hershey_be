@@ -13,7 +13,19 @@ class UserManager {
 
     }
 
+    /** 
+     * create() 
+     * creates new user record in DB
+     * TODO: check that all fields are present
+     * * returns: 
+        * * $data:array ["userCreated" = boolean, "prizeID" = int ]
+        * * $data:array ["error" = string]
+    */
     public function create(){
+        $data = array(
+            'userCreated' => FALSE,
+            'prizeID' => NULL
+        );
 
         $query = "INSERT INTO Users (firstname, lastname, email, prize_id) VALUES (?, ?, ?, ?) ";
 
