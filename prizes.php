@@ -1,5 +1,6 @@
 <?php
-require ('utils.php');
+include_once ('utils.php');
+
 
 class PrizeManager {
 

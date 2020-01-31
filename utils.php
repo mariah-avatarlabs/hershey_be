@@ -24,7 +24,7 @@ function encryptData($dataString){
  * @param totalPrizes: int = total prizes allocated for the day
  * TODO: modify odds based on time of day
  * TODO: modify total prizes based off of remaining prizes?
- * * returns: boolean determining if player won or not
+ * * returns: boolean determining if player won(TRUE) or not(FALSE)
 */
 function determineProbability($prizesWon, $totalPrizes)
 {

@@ -1,7 +1,7 @@
 <?php
-require ('prizes.php');
-require ('user.php');
-require ('utils.php');
+include_once ('prizes.php');
+include_once ('user.php');
+include_once ('utils.php');
 
 require __DIR__ . '/vendor/autoload.php';
 
