@@ -83,13 +83,14 @@ function removeSalt($data){
 }
 
 /** 
- * decryptData() 
+ * decrypt() 
  * decrypt data
  * @param data:string = encrypted data with salt
  * * returns:string data decrypted without salt
  * 
 */
-function decryptData($dataString){
+function decrypt($dataString){
+    //? move key to env file
     $key = "testing"; 
     $ciphering = "AES-128-CTR"; 
     $iv_length = openssl_cipher_iv_length($ciphering); 
@@ -103,13 +104,13 @@ function decryptData($dataString){
 }
 
 /** 
- * encryptData() 
+ * encrypt() 
  * encrypt data
  * @param data:string = data to be encrypted
  * * returns:string data encrypted with salt
  * 
 */
-function encryptData($dataString){
+function encrypt($dataString){
     $key = "testing"; 
     $ciphering = "AES-128-CTR"; 
     $iv_length = openssl_cipher_iv_length($ciphering); 

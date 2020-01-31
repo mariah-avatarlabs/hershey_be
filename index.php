@@ -19,10 +19,6 @@ header('Content-Type: application/json; charset=utf-8');
 $conn = new mysqli($hostname, $username, $password, $dbname); 
 $dateStamp = generateTimestamp();
 
-$encDate = encryptData($dateStamp);
-echo ($encDate);
-echo (decryptData($encDate));
-
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }

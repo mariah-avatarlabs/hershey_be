@@ -6,10 +6,23 @@ class UserManager {
         $this->conn = $conn;
         $this->dateStamp = $dateStamp;
 
-        $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
-        $this->lastname = filter_var($_POST["lastname"], FILTER_SANITIZE_STRING);
-        $this->email = filter_var($_POST["email"], FILTER_SANITIZE_STRING);
-        $this->prizeID = filter_var($_POST["prizeID"], FILTER_SANITIZE_STRING);
+        $this->firstname = "";
+        $this->lastname = "";
+        $this->email = "";
+        $this->prizeID = "";
+
+        if( isset($_POST['firstname']) ){
+            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+        }
+        if( isset($_POST['lastname']) ){
+            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+        }
+        if( isset($_POST['email']) ){
+            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+        }
+        if( isset($_POST['prizeID']) ){
+            $this->firstname = filter_var($_POST["firstname"], FILTER_SANITIZE_STRING);
+        }                        
 
     }
 
@@ -20,7 +33,6 @@ class UserManager {
         * * $data:array ["userCreated":boolean, "prizeID":int ]
         * * $data:array ["error":string]
      *
-     * TODO: additional check that all fields are present [ check on FE? ]
     */
     public function create(){
 	    //* Define expected data structure
