@@ -23,8 +23,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$userM = new UserManager($conn, $dateStamp);
-$userM->exportToCSV();
+
 /** 
  * updatePrize() 
  * makes call to prizeManager to update selected prize record; filter for error;

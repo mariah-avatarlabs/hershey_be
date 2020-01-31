@@ -7,23 +7,25 @@ class UserManager {
         $this->conn = $conn;
         $this->dateStamp = $dateStamp;
 
-        $this->firstname = "";
-        $this->lastname = "";
-        $this->email = "";
-        $this->prizeID = "";
+        $this->postData = array(
+            "firstname" => NULL,
+            "lastname" => NULL,
+            "email" => NULL,
+            "prizeID" => NULL,            
+        );
 
-        // if( isset($_POST['firstname']) ){
-        //     $this->firstname = encrypt(filter_var($_POST["firstname"], FILTER_SANITIZE_STRING));
-        // }
-        // if( isset($_POST['lastname']) ){
-        //     $this->lastname = encrypt(filter_var($_POST["lastname"], FILTER_SANITIZE_STRING));
-        // }
-        // if( isset($_POST['email']) ){
-        //     $this->email = encrypt(filter_var($_POST["email"], FILTER_SANITIZE_STRING));
-        // }
-        // if( isset($_POST['prizeID']) ){
-        //     $this->prizeID = filter_var($_POST["prizeID"], FILTER_SANITIZE_STRING);
-        // }                        
+        if( isset($_POST['firstname']) ){
+            $this->postData["firstname"] = encrypt(filter_var($_POST["firstname"], FILTER_SANITIZE_STRING));
+        }
+        if( isset($_POST['lastname']) ){
+            $this->postData["lastname"] = encrypt(filter_var($_POST["lastname"], FILTER_SANITIZE_STRING));
+        }
+        if( isset($_POST['email']) ){
+            $this->postData["email"] = encrypt(filter_var($_POST["email"], FILTER_SANITIZE_STRING));
+        }
+        if( isset($_POST['prizeID']) ){
+            $this->postData["prizeID"] = filter_var($_POST["prizeID"], FILTER_SANITIZE_STRING);
+        }                        
 
     }
 
@@ -36,30 +38,42 @@ class UserManager {
      *
     */
     public function create(){
+        $validData = TRUE;
+
 	    //* Define expected data structure
         $data = array(
             'userCreated' => FALSE,
             'prizeID' => NULL
         );
+
+        //* Check data is accounted for
+        foreach ($this->postData as $key => $value) {
+            if(is_null($value)){
+                $validData = FALSE;
+                $data['error'] = "INVALID ENTRY" . $key;
+            }
+        }
+
+        if($validData == TRUE){
+            //* Query to create user with post data
+            $query = "INSERT INTO Users (firstname, lastname, email, prize_id) VALUES (?, ?, ?, ?) ";
+            
+            //* Prepare and run query 
+            $sql = $this->conn->prepare($query);
+            $sql->bind_param("sssi", $this->firstname, $this->lastname, $this->email, intval($this->prizeID));
+
+            $result = $sql->execute();
+
+            //* Filter data            
+            if ($result) { 
+                $data['userCreated'] = TRUE;
+                $data['prizeID'] = $this->prizeID;
         
-        //* Query to create user with post data
-        $query = "INSERT INTO Users (firstname, lastname, email, prize_id) VALUES (?, ?, ?, ?) ";
+            } else {
+                $data['error'] = "USER CREATE FAILED";
+            }        
+        }
         
-        //* Prepare and run query 
-        $sql = $this->conn->prepare($query);
-        $sql->bind_param("sssi", $this->firstname, $this->lastname, $this->email, intval($this->prizeID));
-
-        $result = $sql->execute();
-
-        //* Filter data            
-        if ($result) { 
-            $data['userCreated'] = TRUE;
-            $data['prizeID'] = $this->prizeID;
-    
-        } else {
-            $data['error'] = "USER CREATE FAILED";
-        }        
-
         return $data;
 
     }
