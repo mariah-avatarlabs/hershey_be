@@ -16,6 +16,16 @@ function encryptData($dataString){
 
 }
 
+
+/** 
+ * determineProbability() 
+ * updates prize `time_won` or `time_claimed` property based off of ID and update type.
+ * @param prizesWon: int = number of prizes already won
+ * @param totalPrizes: int = total prizes allocated for the day
+ * TODO: modify odds based on time of day
+ * TODO: modify total prizes based off of remaining prizes?
+ * * returns: boolean determining if player won or not
+*/
 function determineProbability($prizesWon, $totalPrizes)
 {
     $odds = $totalPrizes - $prizesWon;
