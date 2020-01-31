@@ -32,9 +32,11 @@ class UserManager {
     /** 
      * create() 
      * creates new user record in DB
-     * * returns: 
-        * * $data:array ["userCreated":boolean, "prizeID":int ]
-        * * $data:array ["error":string]
+     * * returns:array [ 
+        * * "userCreated":boolean => query confirmation user record has been created in DB, 
+        * * "prizeID":int => prizeID associated with created user
+        * * "error":string[conditional] => error messaging if failure
+     * ]
      *
     */
     public function create(){
