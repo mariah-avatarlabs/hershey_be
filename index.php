@@ -30,20 +30,25 @@ if ($conn->connect_error) {
  * @param type: string = determine if update property should be `time_won` or `time_updated`
  * @param ID: string = prize D used in SQL query
  * * returns: 
-	 * * $data:array ["prizeUpdated" = boolean]
-	 * * $data:array ["error" = boolean]
+	 * * onSuccess => $data:array ["prizeUpdated":boolean]
+	 * * onFail => $data:array ["prizeUpdated":boolean], "error":string]
  * 
  * ? is this necessary [similar function as prizemanager update]
 */
 function updatePrize($type, $ID){
 	global $conn;
 	global $dateStamp;
+	
+	//* Define expected data structure
 	$data = array(
 		'prizeUpdated' => FALSE,
 	);
+
+	//* Make call to prizemanager to update the specified prize data
 	$prizeManager = new PrizeManager($conn, $dateStamp);
 	$prizeUpdated = $prizeManager->update($type, $ID);
 
+	//* Filter for error
 	if(hasError($prizeUpdated) == FALSE){
 		$data["prizeUpdated"] = TRUE;
 	} else {
@@ -53,8 +58,6 @@ function updatePrize($type, $ID){
 	return $data;
 
 }
-
-
 
 
 /** 
@@ -78,18 +81,22 @@ function createUser(){
 		'created' => FALSE,
 	);
 
+	//* Make call to userManager to create user record in DB;
 	$userData = $userManager->create();
 
+	//* Filter for errors
 	if(hasError($userData) == FALSE){
 		$data["created"] = TRUE;
 
+		//* Call to update prize `time_claimed` status
 		$prizeHasUpdated = updatePrize('claimed', $userData["prizeID"]);
 		$data=array_merge($data, $prizeHasUpdated);
 
 	} else {
 		$data["error"] = $userData["error"];
 	}
-
+	
+	//* Send data back and close connection
 	echo json_encode($data);
 	mysqli_close($conn);
 
@@ -130,7 +137,7 @@ function wonPrize(){
 			if(hasError($prizeData) == FALSE){
 				$data['prizeID'] = $prizeData['prize']['id'];
 				
-				//* Call to update prize status
+				//* Call to update prize `time_won` status
 				$prizeHasUpdated = updatePrize('won', $data['prizeID']);
 				$data=array_merge($data, $prizeHasUpdated);
 
