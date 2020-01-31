@@ -13,8 +13,8 @@ class PrizeManager {
      * canWin() 
      * determines if there are any available prizes for the current time interval based off of how many prizes were claimed today
      * * returns: 
-        * * $data:array ["hasWon" = boolean]
-        * * $data:array ["error" = string]
+        * * onSuccess => $data:array ["hasWon":boolean]
+        * * onFail => $data:array ["error":string]
     */
     public function canWin(){
         $dailyLimit = 5;
@@ -25,21 +25,27 @@ class PrizeManager {
         $startDate = $baseDate . $timeStart;
         $endDate = $baseDate . $timeEnd;
         
+        //* Define expected data structure
         $data = array(
             'hasWon' => FALSE,
         );
         
+        //* Query for count of prizes won today 
         $query = "SELECT COUNT(*) FROM Prizes WHERE time_claimed BETWEEN (?) AND (?)";    
-        
+        //* Prepare and run query 
         $sql = $this->conn->prepare($query);
     	$sql -> bind_param("ss", $startDate, $endDate);
         $result = $sql->execute();
         $result = $sql->get_result();
         
+        //* Filter data            
         if ($result) { 	
+
+            //* Extract query results
             $count = $result -> fetch_row();
             $count = $count[0];
-
+            
+            //* Determine if user has won
             if($count < $dailyLimit){
                 $data['hasWon'] = determineProbability($count, $dailyLimit);
             }
@@ -58,16 +64,18 @@ class PrizeManager {
      * @param type: string = determine if update property should be `time_won` or `time_updated`
      * @param ID: string = ID used in SQL query to retrieve prize data
      * * returns: 
-        * * $data:array ["updated" = boolean]
-        * * $data:array ["error" = string]
+        * * onSuccess => $data:array ["updated":boolean]
+        * * onFail => $data:array ["error":string]
      * 
      * TODO: update ID to int
     */
     public function update($type, $ID){
+        //* Define expected data structure
         $data = array(
             'updated' => FALSE,
         );
             
+        //* Determine what type of update/query needs to be taken per the type key($type);
         switch ($type) {
             case 'won':
                 $query = "UPDATE `Prizes` 
@@ -81,6 +89,7 @@ class PrizeManager {
                             WHERE `id` = (?)";
                 break;
 
+           //? Should this be the default action?
            default:
                 $query = "UPDATE `Prizes` 
                             SET `time_won` = (?) 
@@ -89,13 +98,13 @@ class PrizeManager {
         }
 
 
-        
+        //* Prepare and run query 
         $sql = $this->conn->prepare($query);
         $sql->bind_param("ss", $this->dateStamp, $ID);
 
+        //* Filter data            
         if ($sql -> execute()) { 
             $data['updated'] = TRUE;
-
         } else {
             $data['error'] = $sql->error;
         }
@@ -109,35 +118,36 @@ class PrizeManager {
      * returns prize record in DB if `time_claimed` is NULL and `time_won` is between the expressed interval or NULL
      * @param timeFrame: string = desired time interval
      * * returns: 
-        * * $data:array ["prize" = array ]
-        * * $data:array ["error" = string]
+        * * onSuccess => $data:array ["prize":array ]
+        * * $onFail => data:array ["error":string]
      *
      * TODO: allow arg to be passed in for variable time intervals
      * TODO: confirm get_result() call
     */
     public function retrieveAvailablePrize(){
-        // REFACTOR - pull into util??
+        //? Pull into util??
         $baseTime = Datetime::createFromFormat('Y-m-d H:i:s', $this->dateStamp);
         $baseTime = $baseTime->modify('-10 minutes');
         $endTime = $baseTime->format('Y-m-d H:i:s');
-            
+        
+        //* Define expected data structure            
         $data = array(
             'prize' => null,
         );
-    
+        
+        //* Query for prize that is not claimed, and has either been won within the given time interval or has not been won
         $query = "SELECT * FROM `Prizes` 
                     WHERE `time_claimed` IS NULL 
                     AND `time_won` BETWEEN (?) AND (?) 
                     OR `time_won` IS NULL 
                     LIMIT 1";
         
-
+        //* Prepare and run query 
         $sql = $this->conn->prepare($query);
         $sql->bind_param("ss", $endTime, $this->dateStamp);
-    
         $result = $sql -> execute();
 
-            
+        //* Filter data            
         if ($result) { 	
             $result = $sql->get_result();
 

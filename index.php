@@ -28,7 +28,7 @@ if ($conn->connect_error) {
  * updatePrize() 
  * makes call to prizeManager to update selected prize record; filter for error;
  * @param type: string = determine if update property should be `time_won` or `time_updated`
- * @param ID: string = prize D used in SQL query
+ * @param ID: string = prize ID used in SQL query
  * * returns: 
 	 * * onSuccess => $data:array ["prizeUpdated":boolean]
 	 * * onFail => $data:array ["prizeUpdated":boolean], "error":string]
