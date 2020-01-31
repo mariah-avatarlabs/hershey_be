@@ -32,6 +32,7 @@ class PrizeManager {
         
         //* Query for count of prizes won today 
         $query = "SELECT COUNT(*) FROM Prizes WHERE time_claimed BETWEEN (?) AND (?)";    
+        
         //* Prepare and run query 
         $sql = $this->conn->prepare($query);
     	$sql -> bind_param("ss", $startDate, $endDate);

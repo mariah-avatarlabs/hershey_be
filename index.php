@@ -19,6 +19,10 @@ header('Content-Type: application/json; charset=utf-8');
 $conn = new mysqli($hostname, $username, $password, $dbname); 
 $dateStamp = generateTimestamp();
 
+$encDate = encryptData($dateStamp);
+echo ($encDate);
+echo (decryptData($encDate));
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -64,8 +68,8 @@ function updatePrize($type, $ID){
  * createUser() 
  * manage queries for creating user and call to update associative prize; close connection
 * * echo(json_encoded): 
-	 * * onSuccess => $data:array ["created" = boolean]
-	 * * onFail => $data:array ["error" = boolean]
+	 * * onSuccess => $data:array ["created":boolean]
+	 * * onFail => $data:array ["error":boolean]
  * 
  * ? is this necessary [similar function as prizemanager update]
 */
@@ -196,8 +200,7 @@ function init(){
 
 
 }
-
-init();
+// init();
 
 
 

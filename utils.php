@@ -31,7 +31,6 @@ function determineProbability($prizesWon, $totalPrizes)
     $odds = $odds / $totalPrizes;
     $odds = $odds * 100;
 
-    //https://stackoverflow.com/questions/9252671/how-do-i-execute-one-event-in-php-based-on-a-probability-for-the-event-to-happen
     if (rand(1,100) <= $odds){
         // echo 1;
         return TRUE;
@@ -59,18 +58,66 @@ function hasError($data){
 
 }
 
+/** 
+ * addSalt() 
+ * adds MD5 hash to data
+ * @param data:string = data to be encrypted for DB
+ * * returns:string salted data to be encrypted
+ * 
+*/
+function addSalt($data){
+    $chars = '5ecc04a77b57809c69f09721b8cf76ac';
+    return $data .= $chars;
+}
 
+/** 
+ * removeSalt() 
+ * removes MD5 hash from data
+ * @param data:string = data to be returned decrypted
+ * * returns:string data decrypted and de-salted
+ * 
+*/
+function removeSalt($data){
+    $chars = '5ecc04a77b57809c69f09721b8cf76ac';
+    return substr($data, 0, -strlen($chars));
+}
+
+/** 
+ * decryptData() 
+ * decrypt data
+ * @param data:string = encrypted data with salt
+ * * returns:string data decrypted without salt
+ * 
+*/
 function decryptData($dataString){
+    $key = "testing"; 
+    $ciphering = "AES-128-CTR"; 
+    $iv_length = openssl_cipher_iv_length($ciphering); 
+    $decryption_iv = '1234567891011121'; 
+
+    $decryption=openssl_decrypt ($dataString, $ciphering,  
+        $key, 0, $decryption_iv); 
+
+    return removeSalt($decryption);
 
 }
 
+/** 
+ * encryptData() 
+ * encrypt data
+ * @param data:string = data to be encrypted
+ * * returns:string data encrypted with salt
+ * 
+*/
 function encryptData($dataString){
-    //https://www.geeksforgeeks.org/how-to-encrypt-and-decrypt-a-php-string/
+    $key = "testing"; 
     $ciphering = "AES-128-CTR"; 
+    $iv_length = openssl_cipher_iv_length($ciphering); 
     $encryption_iv = '1234567891011121'; 
 
-    $iv_length = openssl_cipher_iv_length($ciphering); 
-
+    $encryption = openssl_encrypt(addSalt($dataString), $ciphering, 
+    $key, 0, $encryption_iv); 
+    return $encryption;
 }
 
 

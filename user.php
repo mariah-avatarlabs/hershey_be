@@ -17,29 +17,32 @@ class UserManager {
      * create() 
      * creates new user record in DB
      * * returns: 
-        * * $data:array ["userCreated" = boolean, "prizeID" = int ]
-        * * $data:array ["error" = string]
+        * * $data:array ["userCreated":boolean, "prizeID":int ]
+        * * $data:array ["error":string]
      *
-     * TODO: additional check that all fields are present?
+     * TODO: additional check that all fields are present [ check on FE? ]
     */
     public function create(){
+	    //* Define expected data structure
         $data = array(
             'userCreated' => FALSE,
             'prizeID' => NULL
         );
-
+        
+        //* Query to create user with post data
         $query = "INSERT INTO Users (firstname, lastname, email, prize_id) VALUES (?, ?, ?, ?) ";
-
+        
+        //* Prepare and run query 
         $sql = $this->conn->prepare($query);
         $sql->bind_param("sssi", $this->firstname, $this->lastname, $this->email, intval($this->prizeID));
         $result = $sql->execute();
-
+        
+        //* Filter data            
         if ($result) { 
             $data['userCreated'] = TRUE;
             $data['prizeID'] = $this->prizeID;
     
         } else {
-            //QUESTION - double check
             $data['error'] = $sql->error;
         }
 
