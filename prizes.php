@@ -57,10 +57,11 @@ class PrizeManager {
      * updates prize `time_won` or `time_claimed` property based off of ID and update type.
      * @param type: string = determine if update property should be `time_won` or `time_updated`
      * @param ID: string = ID used in SQL query to retrieve prize data
-     * TODO: update ID to int
      * * returns: 
         * * $data:array ["updated" = boolean]
         * * $data:array ["error" = string]
+     * 
+     * TODO: update ID to int
     */
     public function update($type, $ID){
         $data = array(
@@ -107,11 +108,12 @@ class PrizeManager {
      * retrieveAvailablePrize() 
      * returns prize record in DB if `time_claimed` is NULL and `time_won` is between the expressed interval or NULL
      * @param timeFrame: string = desired time interval
-     * TODO: allow arg to be passed in for variable time intervals
-     * TODO: confirm get_result() call
      * * returns: 
         * * $data:array ["prize" = array ]
         * * $data:array ["error" = string]
+     *
+     * TODO: allow arg to be passed in for variable time intervals
+     * TODO: confirm get_result() call
     */
     public function retrieveAvailablePrize(){
         // REFACTOR - pull into util??

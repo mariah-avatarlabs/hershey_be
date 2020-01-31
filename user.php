@@ -16,10 +16,11 @@ class UserManager {
     /** 
      * create() 
      * creates new user record in DB
-     * TODO: check that all fields are present
      * * returns: 
         * * $data:array ["userCreated" = boolean, "prizeID" = int ]
         * * $data:array ["error" = string]
+     *
+     * TODO: additional check that all fields are present?
     */
     public function create(){
         $data = array(
