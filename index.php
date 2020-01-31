@@ -13,187 +13,71 @@ $username =  $_ENV['DB_USER'];
 $password =  $_ENV['DB_PASSWORD'];
 $dbname =  $_ENV['DB_NAME'];
 
-
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json; charset=utf-8');
 
 $conn = new mysqli($hostname, $username, $password, $dbname); 
 $dateStamp = generateTimestamp();
 
-$prizeManager = new PrizeManager($conn, $dateStamp);
-$userManager = new UserManager($conn, $dateStamp);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
-// utils
-function generateTimestamp(){
-	$date = new Datetime();
-	return $date->format('Y-m-d H:i:s');
-}
-
-
-
-
-
-
-
-function retrieveUser(){
-    global $conn;
-	
-	$email = $_POST["email"];
-
-    $query = "SELECT * FROM `Users` WHERE `email` = (?) ";
-    $sql = $conn->prepare($query);
-    $sql->bind_param("s", $email);
-
-    $users = array();
-
-    if ($sql -> execute()) { 
-        $result = $sql->get_result();
-
-        // REFACTOR: CHECK HOW MANY RESULTS
-        while ($row = $result->fetch_array(MYSQLI_ASSOC)){
-	 	    return $row;
-        }
-
-     } else {
-        echo " ERROR: " ;
-     }
-    
-};
-
-
-function retrievePrize(){
-	global $conn;
-	
-	$result = NULL;
-
-	if( !empty($_POST['prizeID']) ){
-		$prizeID =  $_POST['prizeID'];
-		$query = "SELECT * FROM `Prizes` WHERE `id` = (?)";
-
-		$sql = $conn->prepare($query);
-		$sql->bind_param("i", $prizeID);
-
-		if($sql -> execute()){
-			$result = $sql -> get_result();
-		}
-
-	} else {
-		$query = "SELECT * FROM `Prizes` WHERE `time_won` IS NULL LIMIT 1 ";
-		$result = $conn -> query($query);
-	}
-
-
-	if($result){
-		$prize = $result -> fetch_object();
-		
-		if(isset($prizeID)){
-			return json_encode($prize);
-
-		} else {
-			return $prize;
-
-		}
-
-
-	} else {
-		echo "ERROR";
-
-	}
-
-};
-
-
-function assignPrizeToUser(){
+function updatePrize($type, $ID){
 	global $conn;
 	global $dateStamp;
-	echo "CALLED";
+	$data = array(
+		'prizeUpdated' => FALSE,
+	);
+	$prizeManager = new PrizeManager($conn, $dateStamp);
+	$prizeUpdated = $prizeManager->update($type, $ID);
 
-	$email = $_POST["email"];
-	$prizeID = $_POST['prizeID'];
-
-	// QUESTION - DUPLICATES?
-	$query = "UPDATE `Users` SET `prize_id` = (?) WHERE `email` = (?) LIMIT 1 ";
-
-	// add timestamp to prize
-    $sql = $conn->prepare($query);
-	$sql -> bind_param("is", $prizeID, $email);
-	
-	if ($sql -> execute()) { 
-		echo "SUCCESS";	
+	if(hasError($prizeUpdated) == FALSE){
+		$data["prizeUpdated"] = TRUE;
 	} else {
-		echo " ERROR: DID NOT UPDATE USER WITH PRIZE" ;
+		$data["error"] = $prizeUpdated["error"];
 	}
 
-};
-
-function timeInterval($time){
-	$baseTime = strtotime($time);
-	echo 'time';
-	echo $baseTime;
-}
-
-
-
-
-
-// $prizesAvailable = $prizesAvailable['hasWon'];
-
-// echo json_encode();
-
-
-function claimedPrize(){
-	global $conn;
-
-	$prizeID = $_POST['prizeID'];
-
-	$dateStamp = generateTimestamp();
-
-	$query = "UPDATE `Prizes` SET `time_claimed` = (?) WHERE `id` = (?) ";
-	$sql = $conn -> prepare($query);
-	$sql -> bind_param("si", $dateStamp, $prizeID);
-
-	if ($sql -> execute()) { 
-		return true;
-	} else {
-		return false;
-	}
+	return $data;
 
 }
 
 
 function createUser(){
-	global $userManager;
+	global $conn;
+	global $dateStamp;
+
+	$userManager = new UserManager($conn, $dateStamp);
+	$prizeManager = new PrizeManager($conn, $dateStamp);
 	
 	$data = array(
 		'created' => FALSE,
 	);
 
-	$createUser = $userManager->create();
+	$userData = $userManager->create();
 
-	if(hasError($createUser) == FALSE){
+	if(hasError($userData) == FALSE){
 		$data["created"] = TRUE;
 
-		// update prize claimed
-		$prizeUpdated = $prizeManager->update('claimed', );
+		$prizeHasUpdated = updatePrize('claimed', $userData["prizeID"]);
+		$data=array_merge($data, $prizeHasUpdated);
 
 	} else {
-		$data["error"] = $createUser["error"];
+		$data["error"] = $userData["error"];
 	}
 
 	echo json_encode($data);
-    
-};
-createUser();
+	mysqli_close($conn);
 
+};
 
 
 function wonPrize(){
-	global $prizeManager;
+	global $conn;
+	global $dateStamp;
+
+	$prizeManager = new PrizeManager($conn, $dateStamp);
 
 	$data = array(
 		'won' => false,
@@ -211,11 +95,14 @@ function wonPrize(){
 			if(hasError($prizeData) == FALSE){
 				$data['prizeID'] = $prizeData['prize']['id'];
 				
-				// update prize time_won stamp
-				$prizeStatus = $prizeManager->updateTimeWon($data['prizeID']);
-				if(hasError($prizeStatus) == TRUE){
-					$data['error'] = $prizeStatus['error'];
-				}
+				$prizeHasUpdated = updatePrize('won', $data['prizeID']);
+				$data=array_merge($data, $prizeHasUpdated);
+
+				// update prize time_won stamp - pull out
+				// $prizeStatus = $prizeManager->update('won', $data['prizeID']);
+				// if(hasError($prizeStatus) == TRUE){
+				// 	$data['error'] = $prizeStatus['error'];
+				// }
 
 			} else {
 				$data['error'] = $prizeData['error'];
@@ -228,35 +115,44 @@ function wonPrize(){
 	};
 
 	echo json_encode($data);
+	mysqli_close($conn);
 
 };
 
-$action =  $_POST['action'];
 
-switch ($action) {
-	case 'createUser':
-		createUser();		
-		break;
+function init(){
+	global $conn;
 
-	case 'retrieveUser':
-		retrieveUser();		
-		break;	
+	$action = NULL;
 
-	case 'retrievePrize':
-		retrievePrize();		
-		break;			
+	if( isset($_POST['action']) ){
+		$action = filter_var($_POST['action'], FILTER_SANITIZE_STRING);
+	}
 
-	case 'won':
-		wonPrize();		
-		break;	
-
-	case 'claim':
-		claimedPrize();		
-		break;			
+	switch ($action) {	
+		case 'won':
+			wonPrize();		
+			break;	
 	
-	default:
-		break;
+		case 'claim':
+			createUser();		
+			break;			
+		
+		default:
+		// OPTIONS?
+			$data = array(
+				'error' => "NO ACTION",
+			);
+			echo json_encode($data);
+			mysqli_close($conn);
+			break;
+	}
+
+
 }
+
+init();
+
 
 
 ?>

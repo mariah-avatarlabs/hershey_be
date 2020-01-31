@@ -51,7 +51,6 @@ class PrizeManager {
             'updated' => FALSE,
         );
             
-
         switch ($type) {
             case 'won':
                 $query = "UPDATE `Prizes` 
@@ -79,56 +78,12 @@ class PrizeManager {
 
         if ($sql -> execute()) { 
             $data['updated'] = TRUE;
+
         } else {
             $data['error'] = $sql->error;
         }
 
         return $data;
-
-    }
-
-    public function updateTimeWon($ID){
-        $data = array(
-            'updated' => FALSE,
-        );
-            
-        $query = "UPDATE `Prizes` 
-                    SET `time_won` = (?) 
-                    WHERE `id` = (?)";
-        
-        $sql = $this->conn->prepare($query);
-        $sql->bind_param("ss", $this->dateStamp, $ID);
-
-        if ($sql -> execute()) { 
-            $data['updated'] = TRUE;
-        } else {
-            $data['error'] = $sql->error;
-        }
-
-        return $data;
-
-    }
-
-    public function updateTimeClaimed($ID){
-        $data = array(
-            'updated' => FALSE,
-        );
-            
-        $query = "UPDATE `Prizes` 
-                    SET `time_claimed` = (?) 
-                    WHERE `id` = (?)";
-        
-        $sql = $this->conn->prepare($query);
-        $sql->bind_param("ss", $this->dateStamp, $ID);
-
-        if ($sql -> execute()) { 
-            $data['updated'] = TRUE;
-        } else {
-            $data['error'] = $sql->error;
-        }
-
-        return $data;
-
 
     }
 
@@ -143,7 +98,8 @@ class PrizeManager {
         );
     
         $query = "SELECT * FROM `Prizes` 
-                    WHERE `time_won` BETWEEN (?) AND (?) 
+                    WHERE `time_claimed` IS NULL 
+                    AND `time_won` BETWEEN (?) AND (?) 
                     OR `time_won` IS NULL 
                     LIMIT 1";
         
@@ -173,8 +129,6 @@ class PrizeManager {
     
     
     }
-
-
 
     
 }
