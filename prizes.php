@@ -1,6 +1,5 @@
 <?php
 
-
 class PrizeManager {
 
     function PrizeManager($conn, $dateStamp){
@@ -8,6 +7,13 @@ class PrizeManager {
         $this->dateStamp = $dateStamp;
     }
 
+    /** 
+     * canWin() 
+     * determines if there are any available prizes for the current time interval based off of how many prizes were claimed today
+     * * returns: 
+        * * $data:array ["hasWon" = boolean]
+        * * $data:array ["error" = string]
+    */
     public function canWin(){
         $dailyLimit = 5;
         $timeStart = "00:00:00";
@@ -46,6 +52,16 @@ class PrizeManager {
 
     }
 
+    /** 
+     * update() 
+     * updates prize `time_won` or `time_claimed` property based off of ID and update type.
+     * @param type: string = determine if update property should be `time_won` or `time_updated`
+     * @param ID: string = ID used in SQL query to retrieve prize data
+     * TODO: update ID to int
+     * * returns: 
+        * * $data:array ["updated" = boolean]
+        * * $data:array ["error" = string]
+    */
     public function update($type, $ID){
         $data = array(
             'updated' => FALSE,
@@ -87,6 +103,16 @@ class PrizeManager {
 
     }
 
+    /** 
+     * retrieveAvailablePrize() 
+     * returns prize record in DB if `time_claimed` is NULL and `time_won` is between the expressed interval or NULL
+     * @param timeFrame: string = desired time interval
+     * TODO: allow arg to be passed in for variable time intervals
+     * TODO: confirm get_result() call
+     * * returns: 
+        * * $data:array ["prize" = array ]
+        * * $data:array ["error" = string]
+    */
     public function retrieveAvailablePrize(){
         // REFACTOR - pull into util??
         $baseTime = Datetime::createFromFormat('Y-m-d H:i:s', $this->dateStamp);
@@ -111,18 +137,14 @@ class PrizeManager {
 
             
         if ($result) { 	
-            // REFACTOR - CHECK ONE RECORD??
             $result = $sql->get_result();
 
             while ($row = $result->fetch_array(MYSQLI_ASSOC)){
                 $data['prize'] = $row;
-                // echo json_encode($row);
            }
     
         } else {
             $data['error'] = $sql->error;
-            // echo "int err";
-
         }
     
         return $data;
