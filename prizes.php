@@ -32,7 +32,7 @@ class PrizeManager {
         
         //* Query for count of prizes won today 
         $query = "SELECT COUNT(*) FROM Prizes WHERE time_claimed BETWEEN (?) AND (?)";    
-        
+
         //* Prepare and run query 
         $sql = $this->conn->prepare($query);
     	$sql -> bind_param("ss", $startDate, $endDate);
@@ -68,7 +68,6 @@ class PrizeManager {
         * * onSuccess => $data:array ["updated":boolean]
         * * onFail => $data:array ["error":string]
      * 
-     * TODO: update ID to int
     */
     public function update($type, $ID){
         //* Define expected data structure
@@ -101,7 +100,7 @@ class PrizeManager {
 
         //* Prepare and run query 
         $sql = $this->conn->prepare($query);
-        $sql->bind_param("ss", $this->dateStamp, $ID);
+        $sql->bind_param("si", $this->dateStamp, $ID);
 
         //* Filter data            
         if ($sql -> execute()) { 

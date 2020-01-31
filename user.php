@@ -24,7 +24,7 @@ class UserManager {
             $this->postData["email"] = encrypt(filter_var($_POST["email"], FILTER_SANITIZE_STRING));
         }
         if( isset($_POST['prizeID']) ){
-            $this->postData["prizeID"] = filter_var($_POST["prizeID"], FILTER_SANITIZE_STRING);
+            $this->postData["prizeID"] = filter_var($_POST["prizeID"], FILTER_VALIDATE_INT);
         }                        
 
     }
@@ -60,7 +60,7 @@ class UserManager {
             
             //* Prepare and run query 
             $sql = $this->conn->prepare($query);
-            $sql->bind_param("sssi", $this->postData["firstname"], $this->postData["lastname"], $this->postData["email"], intval($this->postData["prizeID"]));
+            $sql->bind_param("sssi", $this->postData["firstname"], $this->postData["lastname"], $this->postData["email"], $this->postData["prizeID"]);
 
             $result = $sql->execute();
 
